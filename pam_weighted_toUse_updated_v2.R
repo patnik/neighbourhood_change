@@ -1,3 +1,5 @@
+# this is a second try
+
 library("TraMineR")
 library("cluster")
 library("WeightedCluster")
