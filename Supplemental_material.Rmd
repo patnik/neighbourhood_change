@@ -3,7 +3,10 @@ title: "Supplemental Analysis for Neighbourhood Trajectories in Great Britain fr
 author:
   - name          : "Nikos Patias"
     affiliation   : "Geographic Data Science Lab, Department of Geography & Planning, University of Liverpool, Liverpool, United Kingdom"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
+
 ---
 
 ```{r setup, include=FALSE}
