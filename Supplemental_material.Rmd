@@ -1,0 +1,476 @@
+---
+title: "Supplemental Analysis for Neighbourhood Trajectories in Great Britain from 1971 to 2011"
+author:
+  - name          : "Nikos Patias"
+    affiliation   : "Geographic Data Science Lab, Department of Geography & Planning, University of Liverpool, Liverpool, United Kingdom"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Summary
+
+This notebook provides some additional information regarding the publication ??? that can be found [here](add_link).
+
+We provide three additional interactive plots and two interactive maps, to supplement our publication results. These are:
+
+1. The [number of neighbourhoods](#temporal-classification-of-neighbourhoods) classified in each of the temporal classification from 1971 to 2011; 
+2. The neighbourhood trajectories distribution across British [Regions](#neighbourhood-trajectories-distribution-across-british-regions) ; 
+3. The neighbourhood trajectories distribution across British Functional Urban Areas [(FUAs)](#neighbourhood-trajectories-distribution-across-british-functional-urban-areas); 
+4. An interactive map for the proportion of neighbourhood trajectories by [Region](#proportion-of-neighbourhood-trajectories-by-region-in-great-britain) in Great Britain;
+5. An interactive map for the proportion of neighbourhood trajectories by [FUA](#proportion-of-neighbourhood-trajectories-by-functional-urban-area-in-great-britain) in Great Britain.
+
+
+
+```{r include=FALSE}
+library(ggplot2)
+library(plotly)
+library(reshape2)
+library(sf)
+library(leaflet)
+library(leaflet.extras)
+library(RColorBrewer)
+```
+
+### Temporal classification of neighbourhoods
+Our temporal clustering resulted in eight neighbourhood typologies:
+
+- **Affluent**: These are the most affluent areas with most of the population belonging to the managerial socioeconomic group with high proportion of population from abroad (10%). These areas are usually suburban and their populations travel to work via private cars (53%). Public transport mode to work is used by 25% reflecting good public transport connections to workplace areas. These areas also have a high proportion of students (4.5%) and owner-occupied houses (76%).
+
+- **Mixed workers suburban**: This group of neighbourhoods is characterised by a mixture of people in manual (46%) and non-manual (43%) socioeconomic groups with only a few students (3%). Their residents are largely UK and Republic of Ireland born (96%). There is high proportion of people travel to work with private mode of transport (70%) and high proportion of owner- occupied housing (70%).
+
+- **Families in council rent**: These neighbourhoods are predominantly occupied by UK and Republic of Ireland born population (96%). There is high unemployment rate (11%), with high proportion of people living in council rented housing (77%). Finally, these areas are well connected or close to workplace areas as people use public (36%) and active mode of travel to work (22%).
+
+- **Blue collar families**: These areas are characterised by high proportion of manual workers (66%) owing a house (41%) which are predominantly UK and Republic of Ireland born (94%). These areas are also closed to workplace areas with high proportion of people using active mode to travel to work (38%).
+
+- **Thriving suburban**: Prosperous neighbourhoods similar to ‘affluent’ neighbourhoods with the difference of less people belonging to managerial socioeconomic group (18%) and higher ratio of owner-occupied houses (87%). Residents mainly use private mode to travel to work (74%)
+and display low vacancy rate (4%) reflecting high demand for housing in the local area.
+
+- **Older striving**: These neighbourhoods are occupied by older people. These correspond mainly to manual workers (52%) and a few in non-manual (38%) occupations and places with relatively high vacancy rate (7%). The name of the cluster is Older striving but there are also people from higher socioeconomic groups (i.e. non-manual and managerial occupations) living in these areas
+due to probably higher housing affordability.
+
+- **Struggling**: Young and middle-aged families UK and Republic of Ireland born (96%) with high
+unemployment rate (10%) and an even split of people living in council rented (47%) or owner- occupied housing (46%). These neighbourhoods consist of -mainly- manual workers (56%) with few people in non-manual (37%) occupations.
+
+- **Multicultural urban**: The two main characteristics of these neighbourhoods are: (1) high proportion of young people (29%); and, (2) high ratio of people born abroad (30%) which makes them highly ethnically diverse. There is a mixture of socioeconomic groups and high ratio of people relying on public (40%) or private (34%) transport to travel to work. There is high vacancy rate (7%) in these areas -which are predominantly in city centres of urban areas.
+
+The following plot highlights the number of neighbourhoods (i.e. 1 $km^2$ grids) in each year.
+
+
+```{r, echo=FALSE, fig.width=10,fig.height=7}
+# Temporal clustering plot
+# Read in the file with number of grids by cluster and year
+temp_cl <- read.csv("clusters_temp.csv")
+
+# Make sure that cluster names are treated as characters
+temp_cl$Cluster <- as.character(temp_cl$Cluster)
+
+# Create the line plot
+line_pl <- ggplot(temp_cl, aes(x = Year, y = No_grids, colour = Cluster)) +
+  geom_line() + 
+  xlab("") +
+  ylab("") +
+  scale_color_manual(
+    values = c(
+    "darkgreen",
+    "midnightblue",
+    "#e70ca2",
+    "goldenrod4",
+    "#ed7b45",
+    "steelblue1",
+    "#da142b",
+    "burlywood"
+    )
+    ) +
+  labs(title = "Number of grids by year and temporal cluster",
+       colour = "") +
+  scale_x_discrete(limits=c(temp_cl$Year)) +
+  theme_minimal()
+
+# Add the interactivity using plotly library
+ggplotly(line_pl)
+```
+
+
+
+### Neighbourhood trajectories distribution across British Regions
+Using the temporal neighbourhood typologies highlighted in the previous section, we developed sequences of neighbourhood change. This task resulted in seven neighbourhood trajectories which capture key demographic and socioeconomic changes in Great Britain from 1971 to 2011:
+
+- **Stable affluent**: This trajectory includes neighbourhoods which were affluent -i.e. had a large share of population in professional and managerial occupations with owned housing and private cars- in 1971 and 1981, and remained affluent in 1991, 2001 and 2010 and are located in suburban areas of large cities, predominantly around London.
+
+- **Upward thriving**: This trajectory comprises the second largest number of neighbourhoods (4,924), prevail in suburban and rural areas and are highly spread across the country. It encompasses neighbourhoods which were mainly occupied by retirees in 1971, and transitioned to households with adult population (aged 45–64) employed predominantly in non-manual professional occupations and living in owned housing in later census years.
+
+- **Increasingly socioeconomically diverse**: This trajectory comprises the largest number of neighbourhoods (3,332), which are predominantly found in suburban areas and are regionally more prevalent in northern England. It includes suburban neighbourhoods which were characterised by prevalent manual working family populations in 1971 and 1981, and evolved to host a more balanced ratio of manual and non-manual working populations.
+
+- **Stable multicultural urban**: This trajectory comprises the smallest number of neighbourhoods (614), but they are heavily concentrated in London. It contains neighbourhoods which consisted of population from diverse ethnical background and employed in managerial occupations in 1971, and remained highly multicultural and employed in managerial jobs in subsequent census years.
+
+- **Rejuvenating**: This trajectory includes neighbourhoods in suburban areas which were dominated by a retired population with a high vacancy rate in 1971, and transitioned to have a working age population in the 30-40 age group and a balanced manual/non- manual occupation composition in later census years. These neighbourhoods are mostly found in South Wales and South West England.
+
+- **Ageing manual labour**: This trajectory contains neighbourhoods which housed a high proportion of workers in manual workers and house owners with a relatively high proportion of children in 1971, and transitioned to have an older age profile with large shares of retirees and reduced children population in later census years. These neighbourhoods prevail in smaller cities and towns, largely concentrated in South West and Yorkshire and the Humber.
+
+- **Increasingly struggling home-owners**: This trajectory includes neighbourhoods which had large shares of families in council rented housing and in unemployment in 1971 and 1981, and evolved to have families with a more even split of own housing and council rented housing but equally high shares of unemployment (10%). These neighbourhoods are predominantly in proximity to urban centres with high concentrations in northern regions.
+
+The following plot shows the distribution of the described neighbourhood trajectories across British Regions.
+
+
+```{r, echo=FALSE, fig.width=10,fig.height=7}
+# Regional trajectories distribution
+# Read in the file with the regional distribution of neighbourhood trajectories
+reg_traj <- read.csv("regional_frequency.csv")
+
+# Specify the colours for each neighbourhood trajectory type
+cpal_2 = c(
+  "Stable affluent" = "#3b8222",
+  "Ageing manual labour" = "#2c2ce6",
+  "Increasing socioeconomic diversity" = "#cb6fb9",
+  "Increasing struggling home-owners" = "#f71924",
+  "Stable multicultural urban" = "#d68c3c",
+  "Rejuvenating" = "#65d2cd",
+  "Upwarding thriving" = "#9fd65c"
+  )
+
+# for a specific order
+reg_traj$Trajectory <- factor(reg_traj$Trajectory,
+                      levels=c("Stable affluent",
+                               "Upwarding thriving",
+                               "Increasing socioeconomic diversity",
+                               "Stable multicultural urban",
+                               "Rejuvenating",
+                               "Ageing manual labour",
+                               "Increasing struggling home-owners"))
+
+# Reshape the dataset from long to wide format so we can order the variables
+# and improve the presentation of the plot
+data_wide <- dcast(reg_traj, Region ~ Trajectory, value.var="Proportion")
+
+# Make sure that region names are treated as characters
+data_wide$Region <- as.character(data_wide$Region)
+
+# Order the columns based on these variables
+data_wide <- data_wide[order(-data_wide$`Stable affluent`, 
+                             -data_wide$`Upwarding thriving`,
+                             -data_wide$`Increasing socioeconomic diversity`,
+                             -data_wide$`Stable multicultural urban`,
+                             -data_wide$Rejuvenating,
+                             -data_wide$`Ageing manual labour`,
+                             -data_wide$`Increasing struggling home-owners`),]
+
+# Create the plot showing the regional distribution
+distribution_regions <- ggplot() + 
+  geom_bar(aes(y =  Proportion, x = Region, fill = Trajectory), data = reg_traj,  stat="identity")+
+  labs(title = "Distribution of neighbourhood trajectories across regions", 
+       x = "", y = "", fill = "") +
+  scale_x_discrete(limits=c(data_wide$Region)) +
+  scale_fill_manual(values = cpal_2)+
+  theme_minimal() +
+  theme(
+    text = element_text('Avenir Next Condensed'),
+    axis.text.x=element_text(angle = 90, hjust = 1),
+    strip.text = element_text(face = 'bold', hjust = 0),
+    plot.caption = element_text(face = 'italic'),
+    panel.grid.major = element_line('white', size = 0.5),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.ontop = TRUE
+    )
+
+# Add the interactivity using plotly library
+ggplotly(distribution_regions)
+```
+
+### Neighbourhood trajectories distribution across British Functional Urban Areas
+
+Similar to the previous section, the following plot shows the distribution of the described neighbourhood trajectories across British Functional Urban Areas. The range slider gives the option to the reader to zoom in or out specific parts of the plot.
+
+The FUA layer has been obtained by OECD. FUAs layers are available for all member countries [here](https://www.oecd.org/cfe/regional-policy/functionalurbanareasbycountry.htm). For more information on the methodology behind the creation of FUAs follow this [link](https://www.oecd.org/cfe/regional-policy/Definition-of-Functional-Urban-Areas-for-the-OECD-metropolitan-database.pdf).
+
+```{r, echo=FALSE, fig.width=10,fig.height=7}
+# FUA trajectories distribution
+# Read in the file with the FUA distribution of neighbourhood trajectories
+fua_traj <- read.csv("FUA_data_all.csv")
+
+# Specify the colours for each neighbourhood trajectory type
+cpal_2 = c(
+  "Stable affluent" = "#3b8222",
+  "Ageing manual labour" = "#2c2ce6",
+  "Increasing socioeconomic diversity" = "#cb6fb9",
+  "Increasing struggling home-owners" = "#f71924",
+  "Stable multicultural urban" = "#d68c3c",
+  "Rejuvenating" = "#65d2cd",
+  "Upwarding thriving" = "#9fd65c"
+  )
+
+# for a specific order
+fua_traj$Trajectory <- factor(fua_traj$Trajectory,
+                              levels=c("Stable affluent",
+                                       "Upwarding thriving",
+                                       "Increasing socioeconomic diversity",
+                                       "Stable multicultural urban",
+                                       "Rejuvenating",
+                                       "Ageing manual labour",
+                                       "Increasing struggling home-owners"))
+
+# Reshape the dataset from long to wide format so we can order the variables
+# and improve the presentation of the plot
+data_wide2 <- dcast(fua_traj, FUA + Region ~ Trajectory, value.var="Proportion")
+
+# Make sure that region and FUA names are treated as characters
+data_wide2$FUA <- as.character(data_wide2$FUA)
+data_wide2$Region <- as.character(data_wide2$Region)
+
+# Order the columns based on these variables
+data_wide2 <- data_wide2[order(-data_wide2$`Stable affluent`, 
+                               -data_wide2$`Upwarding thriving`,
+                               -data_wide2$`Increasing socioeconomic diversity`,
+                               -data_wide2$`Stable multicultural urban`,
+                               -data_wide2$Rejuvenating,
+                               -data_wide2$`Ageing manual labour`,
+                               -data_wide2$`Increasing struggling home-owners`),]
+
+# Create the plot showing the FUA distribution
+distribution_fua <- ggplot() + 
+  geom_bar(aes(y =  Proportion, x = FUA, fill = Trajectory), data = fua_traj,  stat="identity")+
+  labs(title = "Distribution of neighbourhood trajectories across FUAs", 
+       x = "", y = "", fill = "") +
+  scale_x_discrete(limits=c(data_wide2$FUA)) +
+  scale_fill_manual(values = cpal_2)+
+  theme_minimal() +
+  theme(
+    text = element_text('Avenir Next Condensed'),
+    axis.text.x=element_text(angle = 90, hjust = 1),
+    strip.text = element_text(face = 'bold', hjust = 0),
+    plot.caption = element_text(face = 'italic'),
+    panel.grid.major = element_line('white', size = 0.5),
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.ontop = TRUE
+    )
+
+# Add the interactivity using plotly library by also adding a range slider
+ggplotly(distribution_fua) %>% 
+  rangeslider()
+```
+
+### Proportion of neighbourhood trajectories by Region in Great Britain
+
+The following map shows the proportion of each neighbourhood neighbourhood trajectory in each Region in Great Britain.
+
+```{r, echo=FALSE, fig.width=10,fig.height=7}
+# Regional map
+# Read in the shapefile with British regions
+regions_geo <- st_read("layers/UK_regions.shp", quiet = TRUE)
+
+# ### if you want to check the size of the file
+# library(pryr)
+# # check the size of the original shapefile
+# pryr::object_size(regions_geo)
+
+# Simplify the file to redice its size
+regions_geo_simplified <- st_simplify(regions_geo, dTolerance = 2000)  # 2000 m
+
+# Merge the geospatial data with the proportion of neighbouhoods in each region
+# from a previous section
+regions_geo_simplified <- merge(x = regions_geo_simplified , y = data_wide, by.x = "geo_label",by.y = "Region", all.x = TRUE)
+
+# Subset the dataset to the variables we want to map
+regions_geo_simp <- regions_geo_simplified[, c(
+  'Stable.affluent',
+  'Upwarding.thriving',
+  'Increasing.socioeconomic.diversity',
+  'Stable.multicultural.urban',
+  'Rejuvenating',
+  'Ageing.manual.labour',
+  'Increasing.struggling.home.owners'
+  )]
+
+# specify the CRS required
+WGS84 = "+init=epsg:4326"
+
+# Make sure that the layer is projected on WGS84 so can be plot with leaflet
+regions_geo_simp <- st_transform(regions_geo_simp,WGS84)
+
+# Convert the geospatial data from sf to sp object (I found it easier to be plotted)
+regions_geo_simp_sp <- as(regions_geo_simp, 'Spatial')
+
+# Change the the column names to remove the dot between lines
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Stable.affluent"] <- "Stable affluent"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Upwarding.thriving"] <- "Upwarding thriving"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Increasing.socioeconomic.diversity"] <- "Increasing socioeconomic diversity"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Stable.multicultural.urban"] <- "Stable multicultural urban"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Rejuvenating"] <- "Rejuvenating"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Ageing.manual.labour"] <- "Ageing manual labour"
+names(regions_geo_simp_sp@data)[names(regions_geo_simp_sp@data)=="Increasing.struggling.home.owners"] <- "Increasing struggling home owners"
+
+# Specify the colour pallete
+my_colours <- brewer.pal(5,"YlOrRd") # rev indicates reverse order
+
+# Initiate the map
+map <- leaflet() %>% addTiles() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter)
+
+# Create a layer for each of the variables through looping across the columns
+for (i in seq_along(1:7)) {
+  # create the colour palette for each layer
+  pal <- colorQuantile(my_colours, regions_geo_simp_sp[[i]], n = 5)
+
+  map <- map %>% 
+    addPolygons(data = regions_geo_simp_sp,
+                fillColor = ~pal(regions_geo_simp_sp[[i]]),
+                weight = 0.4,
+                opacity = 0.8,
+                color = "black",
+                dashArray = "3",
+                fillOpacity = 0.7,
+                popup = paste("Proportion of ", names(regions_geo_simp_sp@data[i]), "neighbourhoods",":" , round(regions_geo_simp_sp[[i]],2), "<br>",
+                              "Region: ", regions_geo_simplified$name, "<br>"),
+                group = names(regions_geo_simp_sp@data[i]),
+                highlight = highlightOptions(
+                  weight = 5,
+                  color = "#666",
+                  dashArray = "",
+                  fillOpacity = 0.7,
+                  bringToFront = TRUE))   %>%
+    addLayersControl(overlayGroups = c(names(regions_geo_simp_sp@data)),
+                     options = layersControlOptions(collapsed = FALSE)) %>% 
+    hideGroup(
+      c(
+      'Upwarding thriving',
+      'Increasing socioeconomic diversity',
+      'Stable multicultural urban',
+      'Rejuvenating',
+      'Ageing manual labour',
+      'Increasing struggling home owners'
+      )
+      )
+}
+
+
+# Add a legend and title to the map
+Regional_map <- map %>%
+  addLegend(colors = c("#FFFFB2",  "#FECC5C", "#FD8D3C", "#F03B20", "#BD0026"),
+            labels= c("lowest Quintile", "","","", "highest Quintile"),
+            position = "bottomleft",
+            title = paste ("Proportion of neighbourhood", "<br>", "trajectories by Region (Quintiles)")) %>% 
+  addFullscreenControl()
+
+# Plot the map
+Regional_map
+
+```
+
+### Proportion of neighbourhood trajectories by Functional Urban Area in Great Britain
+
+Similar to the previous section, the following map shows the proportion of each neighbourhood neighbourhood trajectory in each Functional Urban Areas in Great Britain.
+
+```{r, echo=FALSE, fig.width=10,fig.height=7}
+# FUA map
+# Read in the shapefile with British FUAs
+fua_geo <- st_read("layers/UK_FUA_BNG.shp", quiet = TRUE)
+
+# ### if you want to check the size of the file
+# library(pryr)
+# # check the size of the original shapefile
+# pryr::object_size(regions_geo)
+
+# Merge the geospatial data with the proportion of neighbouhoods in each FUA
+# from a previous section
+fua_geo <- merge(x = fua_geo , y = data_wide2, by.x = "fuaname",by.y = "FUA", all.x = TRUE)
+
+# Subset the dataset to the variables we want to map
+fua_geo_simp <- fua_geo[,c(
+  'Stable.affluent',
+  'Upwarding.thriving',
+  'Increasing.socioeconomic.diversity',
+  'Stable.multicultural.urban',
+  'Rejuvenating',
+  'Ageing.manual.labour',
+  'Increasing.struggling.home.owners'
+  )]
+
+# specify the CRS required
+WGS84 = "+init=epsg:4326"
+
+# Make sure that the layer is projected on WGS84 so can be plot with leaflet
+fua_geo_simp <- st_transform(fua_geo_simp,WGS84)
+
+# Convert the geospatial data from sf to sp object (I found it easier to be plotted)
+fua_geo_simp_sp <- as(fua_geo_simp, 'Spatial')
+
+# Change the the column names to remove the dot between lines
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Stable.affluent"] <- "Stable affluent"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Upwarding.thriving"] <- "Upwarding thriving"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Increasing.socioeconomic.diversity"] <- "Increasing socioeconomic diversity"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Stable.multicultural.urban"] <- "Stable multicultural urban"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Rejuvenating"] <- "Rejuvenating"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Ageing.manual.labour"] <- "Ageing manual labour"
+names(fua_geo_simp_sp@data)[names(fua_geo_simp_sp@data)=="Increasing.struggling.home.owners"] <- "Increasing struggling home owners"
+
+
+# Specify the colour pallete
+my_colours <- brewer.pal(5,"YlOrRd") # rev indicates reverse order
+
+# Initiate the map
+map2 <- leaflet() %>% addTiles()%>% 
+  addProviderTiles(providers$CartoDB.DarkMatter) 
+
+# Create a layer for each of the variables through looping across the columns
+for (i in seq_along(1:7)) {
+  pal <- colorQuantile(my_colours, fua_geo_simp_sp[[i]], n = 5)
+  
+  
+  
+  map2 <- map2 %>% 
+    addPolygons(data = fua_geo_simp_sp,
+                fillColor = ~pal(fua_geo_simp_sp[[i]]),
+                weight = 0.4,
+                opacity = 0.8,
+                color = "black",
+                dashArray = "3",
+                fillOpacity = 0.7,
+                popup = paste("Proportion of ", names(fua_geo_simp_sp@data[i]), "neighbourhoods",":" , round(fua_geo_simp_sp[[i]],2), "<br>",
+                              "FUA: ", fua_geo$fuaname, "<br>"),
+                group = names(fua_geo_simp_sp@data[i]),
+                highlight = highlightOptions(
+                  weight = 5,
+                  color = "#666",
+                  dashArray = "",
+                  fillOpacity = 0.7,
+                  bringToFront = TRUE))   %>%
+    addLayersControl(overlayGroups = c(names(fua_geo_simp_sp@data)),
+                     options = layersControlOptions(collapsed = FALSE)) %>% 
+    hideGroup(
+      c(
+      'Upwarding thriving',
+      'Increasing socioeconomic diversity',
+      'Stable multicultural urban',
+      'Rejuvenating',
+      'Ageing manual labour',
+      'Increasing struggling home owners'
+      )
+      )
+}
+
+
+
+# Add a legend and title to the map
+FUA_map <- map2 %>%
+  addLegend(colors = c("#FFFFB2",  "#FECC5C", "#FD8D3C", "#F03B20", "#BD0026"),
+            labels= c("lowest Quintile", "","","", "highest Quintile"),
+            position = "bottomleft",
+            title = paste ("Proportion of neighbourhood", "<br>", "trajectories by FUA (Quintiles)")) %>% 
+  addFullscreenControl()
+
+# Plot the map
+FUA_map
+
+```
+
+
+
+
+
+
+
+
