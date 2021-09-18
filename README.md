@@ -1,5 +1,4 @@
-# This is the code for analysing trajectories of neighbourhood change in Britain 
-from 1971 to 2011 using Census data.
+# Trajectories of neighbourhood socioeconomic change in Great Britain: 1971-2011
 
 ## Code
 The code folder contains:
