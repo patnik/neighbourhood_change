@@ -15,9 +15,7 @@ framework for spatio-temporal analysis of neighborhood change: A
 sequence analysis approach. Geospatial Technologies for Local and Regional
 Development, pages 223–241 [Access here](https://link.springer.com/chapter/10.1007/978-3-030-14745-7_13)
 
-Patias, N., Rowe, F., and Arribas-Bel, D. [Forthcoming]. Trajectories
- of Neighbourhood Inequality in Britain: Unpacking Inter-regional 
-Socioeconomic Imbalances, 1971-2011. Geographical Journal
+Patias, N., Rowe, F. & Arribas-Bel, D. (2021) Trajectories of neighbourhood inequality in Britain: Unpacking inter-regional socioeconomic imbalances, 1971−2011. The Geographical Journal, 00, 1– 16. Available from: https://doi.org/10.1111/geoj.12420 [Access here](https://rgs-ibg.onlinelibrary.wiley.com/doi/full/10.1111/geoj.12420)
 
 
 ### Policy Briefs
