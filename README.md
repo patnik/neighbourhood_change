@@ -1,5 +1,8 @@
 # Trajectories of neighbourhood socioeconomic change in Great Britain: 1971-2011
 
+## Summary
+This page inlcudes the code for the work on **Trajectories of neighbourhood socioeconomic change in Great Britain: 1971-2011.**
+
 ## Abstract
 Persistent spatial inequalities represent a menace to economic progress, social cohesion and political stability. The UK stands out as one of the most unequal countries in the industrialised world. This paper investigates intra-regional and inter-urban inequalities at the neighbourhood level in Britain during a 40-year period, 1971−2011. Using a novel dataset containing a temporal classification of neighbourhoods, we analysed seven representative trajectories of neighbourhood persistence and change unveiling pathways of socioeconomic progress, decline, persistent affluence and disadvantage. Results highlight the extent of geographic unbalance in the distribution of these trajectories. Socioeconomic progress trajectories have been widespread across British cities. Yet a small handful of cities have concentrated persistent affluent neighbourhoods, and persistent struggling neighbourhoods have prevailed in northern cities.
 
